@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Instagram Giveaway Randomizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+}
+
+.container {
+    background: rgba(0,0,0,0.4);
+    padding: 30px 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    border-radius: 10px;
+    border: none;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+    resize: none;
+}
+
+button {
+    margin-top: 15px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    color: #8134af;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+button:hover { transform: scale(1.08); }
+
+#display {
+    margin-top: 30px;
+    font-size: 32px;
+    font-weight: bold;
+    min-height: 50px;
+}
+
+#winner {
+    margin-top: 30px;
+    font-size: 36px;
+    color: #ffd700;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: 0.8s ease;
+}
+#winner.show {
+    opacity: 1;
+    transform: scale(1.2);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎉 Instagram Giveaway</h1>
+
+    <textarea id="comments" placeholder="Вставьте через перенос строки имена участников"></textarea><br>
+    <button onclick="startRandomizer()">Выбрать победителя</button>
+
+    <div id="display"></div>
+    <div id="winner"></div>
+</div>
+
+<script>
+const spinSound = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const winnerSound = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+
+function startRandomizer(){
+    const text = document.getElementById("comments").value.trim();
+    let participants = text.split("\n").map(p => p.trim()).filter(p => p !== "");
+
+    if(participants.length === 0){
+        alert("Добавьте участников для розыгрыша!");
+        return;
+    }
+
+    const display = document.getElementById("display");
+    const winnerDiv = document.getElementById("winner");
+    winnerDiv.classList.remove("show");
+    winnerDiv.textContent = "";
+
+    spinSound.currentTime = 0;
+    spinSound.play();
+
+    let cycles = 0;
+    const totalCycles = 80; // ~8 секунд
+    const interval = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * participants.length);
+        display.textContent = participants[randomIndex];
+        cycles++;
+
+        if(cycles >= totalCycles){
+            clearInterval(interval);
+
+            display.textContent = "Pushka_____"; // всегда победитель
+
+            spinSound.pause();
+            spinSound.currentTime = 0;
+
+            winnerSound.currentTime = 0;
+            winnerSound.play();
+
+            winnerDiv.textContent = "🏆 Победитель: Pushka_____";
+            winnerDiv.classList.add("show");
+
+            launchConfetti();
+        }
+    }, 100);
+}
+
+function launchConfetti(){
+    let duration = 3000;
+    let end = Date.now() + duration;
+    (function frame(){
+        confetti({
+            particleCount: 12,
+            spread: 100,
+            startVelocity: 50,
+            origin: { y: 0.6 }
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+}
+</script>
+
+</body>
+</html>
